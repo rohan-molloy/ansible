@@ -1,0 +1,35 @@
+- name: "Installing Packages"
+  ansible.builtin.package:
+    name: 
+    - vim
+    - git-core
+    state: present
+
+- name: "Create the sshusers group"
+  ansible.builtin.group:
+    name: sshusers
+    state: present
+
+- name: "Add {{ ansible_user }} to the sshusers group"
+  ansible.builtin.user:
+    name: '{{ ansible_user }}'
+    groups: sshusers
+    append: yes
+
+- name: "Copy the SSH banner"
+  ansible.builtin.copy:
+    src: ../files/etc/issue
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Copy the SSH Config"
+  ansible.builtin.template:
+    src: ../files/etc/ssh/sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+  - restart-sshd

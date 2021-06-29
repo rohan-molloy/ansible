@@ -1,0 +1,100 @@
+################################
+### Provisioned with Ansible ###
+################################
+server:
+    # Run unbound as the user unbound
+    chroot: ""
+    username: "unbound"
+    directory: "/etc/unbound"
+
+    # Listen on port 53 on all interfaces
+    port: 53
+    interface: {{ ansible_default_ipv4.address }}
+    outgoing-interface: 0.0.0.0
+
+    # Only answer requests from RFC1918 addresses
+    access-control: 0.0.0.0/0 refuse
+    access-control: 127.0.0.0/8 allow
+    access-control: ::0/0 refuse
+    access-control: ::1 allow
+    access-control: ::ffff:127.0.0.1 allow
+    access-control: 10.0.0.0/8 allow
+    access-control: 192.168.0.0/16 allow
+    access-control: 172.16.0.0/12 allow 
+
+    # Disable CH Extensions
+    hide-identity: yes 
+    hide-version: yes 
+    hide-trustanchor: yes
+
+    # Prefetch queries
+    prefetch: yes
+    prefetch-key: yes
+
+    # Max cache size
+    msg-cache-size: 256M
+    rrset-cache-size: 512M
+
+    # Trust anchor files
+    auto-trust-anchor-file: "/var/lib/unbound/root.key"
+    trust-anchor-signaling: yes
+    root-key-sentinel: yes
+    trusted-keys-file: /etc/unbound/keys.d/*.key
+    val-clean-additional: yes
+    val-permissive-mode: no
+    ignore-cd-flag: no
+    val-override-date: "0"
+    val-bogus-ttl: 30
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    harden-below-nxdomain: yes
+    qname-minimisation: yes
+    qname-minimisation-strict: no
+    aggressive-nsec: yes
+
+    # Use syslog
+    use-syslog: yes
+
+    # Keep track of statistics
+    statistics-interval: 600
+    statistics-cumulative: yes
+    extended-statistics: yes
+
+    # Networking options
+    prefer-ip6: no
+    outgoing-range: 4096
+    outgoing-port-permit: 32768-60999
+    outgoing-port-avoid: 0-32767
+    so-rcvbuf: 8m
+    so-sndbuf: 8m
+    so-reuseport: yes
+    ip-transparent: no
+    ip-freebind: no
+    edns-buffer-size: 1472
+    max-udp-size: 4096
+
+    # Prevent against DNS Rebinding
+    private-address: 10.0.0.0/8
+    private-address: 172.16.0.0/12
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: fd00::/8
+    private-address: fe80::/10
+    private-address: ::ffff:0:0/96
+
+    # Number of threads to use 
+    num-threads: 2
+    msg-cache-slabs: 2
+    rrset-cache-slabs: 2
+    infra-cache-slabs: 2
+    key-cache-slabs: 2
+    num-queries-per-thread: 1024
+
+    # Configure local-data/local-zones
+    include: /etc/unbound/local-enabled/*.conf
+
+    # Configure stub, forward, auth zones
+    include: /etc/unbound/zones-enabled/*.conf
+
+    # Configure extensions such as remote-control
+    include: /etc/unbound/extensions-enabled/*.conf

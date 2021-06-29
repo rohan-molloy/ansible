@@ -1,0 +1,57 @@
+- name: "Installing Unbound"
+  ansible.builtin.package:
+    name: 
+    - unbound
+    state: present
+
+- name: "Copy unbound configuration"
+  ansible.builtin.template:
+    src: ../files/etc/unbound/unbound.conf.j2
+    dest: /etc/unbound/unbound.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Create /etc/unbound/conf-enabled"
+  ansible.builtin.file:
+    state: directory
+    path: /etc/unbound/conf-enabled
+    mode: 0644
+
+- name: Create "/etc/unbound/local-enabled"
+  ansible.builtin.file:
+    state: directory
+    path: /etc/unbound/local-enabled
+    mode: 0644
+
+- name: "Create /etc/unbound/zones-enabled"
+  ansible.builtin.file:
+    state: directory
+    path: /etc/unbound/zones-enabled
+    mode: 0644
+
+- name: "Create /etc/unbound/extensions-enabled"
+  ansible.builtin.file:
+    state: directory
+    path: /etc/unbound/extensions-enabled
+    mode: 0644
+
+- name: "Copy zone configuration"
+  ansible.builtin.template:
+    src: ../files/etc/unbound/zones-enabled/auth.conf
+    dest: /etc/unbound/zones-enabled/auth.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Allow DNS in Firewall"
+  ansible.posix.firewalld:
+    service: dns
+    permanent: yes
+    state: enabled
+
+- name: "Start Unbound"
+  ansible.builtin.service:
+    name: unbound
+    enabled: yes
+    state: restarted

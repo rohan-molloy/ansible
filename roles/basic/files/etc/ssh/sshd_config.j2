@@ -1,0 +1,66 @@
+################################
+### Provisioned with Ansible ###
+################################
+
+# Run SSHv2 on port 22
+Protocol 2
+Port 22
+
+# Bind to a specific IPv4 Address
+ListenAddress {{ ansible_default_ipv4.address }}
+AddressFamily inet
+
+# Host keys to use
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
+# Cryptography Settings
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+# Disable extra features
+AllowTCPForwarding no
+AllowAgentForwarding no
+X11Forwarding no
+GatewayPorts no
+PermitTunnel no
+PermitTTY yes
+
+# Logging 
+SyslogFacility AUTHPRIV
+LogLevel DEBUG
+
+# Authentication settings
+UsePAM yes
+PubkeyAuthentication yes
+PasswordAuthentication no
+HostbasedAuthentication no
+ChallengeResponseAuthentication no
+KerberosAuthentication no
+GSSAPIAuthentication no
+PermitEmptyPasswords no
+LoginGraceTime 45s
+StrictModes yes
+UseDNS no
+
+# Allow only group 'sshusers' and deny root
+PermitRootLogin no
+AllowGroups sshusers
+
+# Other settings
+IgnoreRhosts yes
+ClientAliveInterval 120
+ClientAliveCountMax 2
+PrintMotd no
+TCPKeepAlive yes
+AcceptEnv LANG LC_*
+
+# Display a banner 
+Banner /etc/issue
+
+# Allow SFTP Subsystem
+Subsystem sftp /usr/libexec/openssh/sftp-server
+
+
